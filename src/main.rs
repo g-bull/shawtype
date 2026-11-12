@@ -210,15 +210,25 @@ impl App {
                 }),
         ];
 
-        column![
-            active_line,
+        let partial_line = row![
+            text(typed_s.clone()).size(24)
+                .color(Color::TRANSPARENT),
+            text(error_s.clone()).size(24)
+                .color(Color::TRANSPARENT),
             text(partial_s.clone()).size(24)
                 .style(text::warning),
+        ];
+
+        column![
+            active_line,
+            partial_line,
+            /*text(partial_s.clone()).size(24)
+                .style(text::warning),*/
             text(self.next_line.clone()).size(24)
-                .style(text::primary),
+                .style(text::secondary),
         ]
         .align_x(Alignment::Start)
-        .spacing(2)
+        .spacing(0)
         .padding(40)
         .into()
     }
@@ -264,7 +274,12 @@ impl App {
                         || target.is_none() /* typed past end of line? */
                         || target.unwrap() != c
                     {
-                        self.errors.push(c);
+                        if c == ' ' {
+                            self.errors.push('\u{25a0}');
+                        }
+                        else {
+                            self.errors.push(c);
+                        }
                     }
                     else {
                         self.typed.push(c);
