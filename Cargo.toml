@@ -2,6 +2,25 @@
 name = "shawtype"
 version = "0.1.0"
 edition = "2024"
+description = "An adaptive typing tutor for the Shavian Alphabet made with Iced in Rust (based on Clark Moody's Linkage program)."
+authors = ["Geoff Bull"]
+license = "MIT"
+repository = "https://github.com/g-bull/shawtype"
+categories = ["games"]
+keywords = ["typing", "tutor", "shavian"]
+
 
 [dependencies]
 iced = "0.14.0"
+
+crossterm = "0.29.0"
+dirs-next = "2.0"
+itertools = "0.14"
+
+rand = "0.10"
+serde_json = "1.0"
+statrs = "0.18"
+
+[dependencies.serde]
+version = "1.0"
+features = ["derive"]

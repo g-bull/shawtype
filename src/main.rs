@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Geoff Bull
+// SPDX-License-Identifier: MIT
+
 use std::collections::{HashSet, VecDeque};
 
 use iced::keyboard::{self, key::Named, Key};
@@ -12,11 +15,11 @@ use iced::event::{self, Event};
 
 
 
-use shawtage::data::words::Words;
+use shawtype::data::words::Words;
 
-use shawtage::jafl::Shaw;
-use shawtage::jafl::KeyEvent;
-use shawtage::jafl;
+use shawtype::jafl::Shaw;
+use shawtype::jafl::KeyEvent;
+use shawtype::jafl;
 
 
 
