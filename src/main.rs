@@ -92,17 +92,17 @@ impl App {
     const CHARS_PER_LINE: usize = 52;
 
     fn new() -> Self {
-        let needs_improvement = vec![];
+        let needs_improvement = vec![ '𐑪', '𐑨', '𐑱', '𐑲', '𐑬', '𐑶'];
                 //'𐑧', '𐑴', '𐑱', '𐑲', '𐑒', '𐑜', '𐑢', '𐑘', '𐑷',];
         let mut letter_order: VecDeque<char> = vec![
-            '𐑦', '𐑩', '𐑰', '𐑨', '𐑮', '𐑕', '𐑛', '𐑯', '𐑑', '𐑥', 
+            '𐑦', '𐑰', '𐑨', '𐑮', '𐑕', '𐑛', '𐑯', '𐑩', '𐑑', '𐑥', 
             '𐑤', '𐑼', '𐑳', '𐑻', '𐑧', '𐑪', '𐑢', '𐑵', '𐑸', '𐑭',
             '𐑿', '𐑷', '𐑘', '𐑖', '𐑡', '𐑙', '𐑗', '𐑫', '𐑓', '𐑹',
             '𐑚', '𐑟', '𐑝', '𐑠', '𐑞', '𐑔', '𐑐', '𐑒', '𐑜', '𐑣',
             '𐑴', '𐑱','𐑺', '𐑲', '𐑬', '𐑶', '𐑾', '𐑽'
         ].into();
         let mut using_chars: HashSet<char> = HashSet::new();
-        for _ in 0..6 {
+        for _ in 0..40 {
             if let Some(c) = letter_order.pop_front() {
                 using_chars.insert(c);
             }
@@ -135,18 +135,6 @@ impl App {
 
         match message {
             Message::KeyEvent(keyboard_event) => {
-                /*
-                if let iced::keyboard::Event(keyboard::Event::KeyPressed {
-                    key: Key::Named(key::Named::Backspace),
-                    ..
-                }) = keyboard_event
-                {
-                    // Handle backspace logic here
-                    println!("Backspace pressed!");
-                    self.pop();
-                    return;
-                }
-                */
                 match keyboard_event {
                     keyboard::Event::KeyPressed { key, modifiers, text, .. } => {
                         // Handle key press here (e.g., check `key` or `modifiers`)
@@ -154,8 +142,8 @@ impl App {
                         match key {
                             iced::keyboard::Key::Named(iced::keyboard::key::Named::Backspace) => {
                                 // Handle Backspace key press
-                                println!("Backspace pressed!");
                                 self.pop();
+                                self.transliterator.clear();
                             }
                             _ => {}
                         }
@@ -163,9 +151,10 @@ impl App {
                         if let Some(latin) = text.chars().next() {
                             if latin.is_ascii_graphic() || latin == ' ' {
                                 let unicode_val = latin as u32;
-                                println!("Latin {} unicode {}", latin, unicode_val);
+                                //println!("Latin {} unicode {}", latin, unicode_val);
                                 let shaw_vec = self.transliterator.process(latin);
                                 for shaw in &shaw_vec {
+                                    /*
                                     match shaw {
                                         KeyEvent::Complete(c) => {
                                             println!("Complete {}", c);
@@ -173,7 +162,7 @@ impl App {
                                         KeyEvent::Partial(c) => {
                                             println!("Partial {}", c);
                                         }
-                                    }
+                                    }*/
                                     self.push(shaw.clone());
                                 }
                             }
@@ -212,11 +201,14 @@ impl App {
 
         let partial_line = row![
             text(typed_s.clone()).size(24)
-                .color(Color::TRANSPARENT),
+                .color(Color::TRANSPARENT)
+                .line_height(0.5),
             text(error_s.clone()).size(24)
-                .color(Color::TRANSPARENT),
+                .color(Color::TRANSPARENT)
+                .line_height(0.5),
             text(partial_s.clone()).size(24)
-                .style(text::warning),
+                .style(text::warning)
+                .line_height(0.5),
         ];
 
         column![
