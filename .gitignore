@@ -26,3 +26,5 @@ rustc-ice-*.txt
 fonts/mikadoshavianbold.ttf
 fonts/mikadoshavianregular.ttf
 junk/
+
+*code-workspace
