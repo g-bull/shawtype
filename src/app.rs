@@ -1,25 +1,21 @@
 // SPDX-FileCopyrightText: 2026 Geoff Bull
 // SPDX-License-Identifier: MIT
 
+mod update;
+mod view;
+
 use std::collections::{HashSet, VecDeque};
 
-use iced::keyboard::{self, key::Named, Key};
+use iced::keyboard;
 
-use iced::widget::{
-    button, center, center_y, column, container, responsive, row, scrollable, text,
-};
-use iced::{Alignment, Center, Color, Element, Fill, Font, Size, Subscription, Task,
-        Theme};
+use iced::{Subscription};
+
 
 use iced::event::{self, Event};
-
-
 
 use shawtype::data::words::Words;
 
 use shawtype::jafl::Shaw;
-use shawtype::jafl::KeyEvent;
-use shawtype::jafl;
 
 
 //#[derive(Debug, Clone, Copy)]
@@ -111,169 +107,11 @@ impl App {
         }
     }
 
-
-    pub fn update(&mut self, message: Message) {
-
-        match message {
-            Message::KeyEvent(keyboard_event) => {
-                match keyboard_event {
-                    keyboard::Event::KeyPressed { key, modifiers, text, .. } => {
-                        // Handle key press here (e.g., check `key` or `modifiers`)
-
-                        match key {
-                            iced::keyboard::Key::Named(iced::keyboard::key::Named::Backspace) => {
-                                // Handle Backspace key press
-                                self.pop();
-                                self.transliterator.clear();
-                            }
-                            _ => {}
-                        }
-                        let text = text.map(|smol| smol.to_string()).unwrap_or_default();
-                        if let Some(latin) = text.chars().next() {
-                            if latin.is_ascii_graphic() || latin == ' ' {
-                                let unicode_val = latin as u32;
-                                //println!("Latin {} unicode {}", latin, unicode_val);
-                                let shaw_vec = self.transliterator.process(latin);
-                                for shaw in &shaw_vec {
-                                    /*
-                                    match shaw {
-                                        KeyEvent::Complete(c) => {
-                                            println!("Complete {}", c);
-                                        },
-                                        KeyEvent::Partial(c) => {
-                                            println!("Partial {}", c);
-                                        }
-                                    }*/
-                                    self.push(shaw.clone());
-                                }
-                            }
-                            else {
-                            }
-                        }
-                    }
-                    keyboard::Event::KeyReleased { key, modifiers, .. } => {
-                        // Handle key release
-                    }
-                    _ => {}
-                }
-                //Task::none()
-            }
-        }
-    }
-
-    pub fn view(&self) -> Element<'_, Message> {
-
-        let typed_s: String = self.typed.clone().into_iter().collect();
-        let error_s: String = self.errors.clone().into_iter().collect();
-        let partial_s: String = self.partial_char.into_iter().collect();
-        let line_s: String = self.line.chars().skip(self.typed.len() + self.errors.len())
-                                .into_iter().collect();
-
-        let active_line = row![
-            text(typed_s.clone()).size(24)
-                .style(text::success),
-            text(error_s.clone()).size(24)
-                .style(text::danger),
-            text(line_s.clone()).size(24)
-                .style(|theme: &Theme| text::Style {
-                    color: Some(theme.palette().text),
-                }),
-        ];
-
-        let partial_line = row![
-            text(typed_s.clone()).size(24)
-                .color(Color::TRANSPARENT)
-                .line_height(0.5),
-            text(error_s.clone()).size(24)
-                .color(Color::TRANSPARENT)
-                .line_height(0.5),
-            text(partial_s.clone()).size(24)
-                .style(text::warning)
-                .line_height(0.5),
-        ];
-
-        column![
-            active_line,
-            partial_line,
-            /*text(partial_s.clone()).size(24)
-                .style(text::warning),*/
-            text(self.next_line.clone()).size(24)
-                .style(text::secondary),
-        ]
-        .align_x(Alignment::Start)
-        .spacing(0)
-        .padding(40)
-        .into()
-    }
-
     pub fn subscription(&self) -> Subscription<Message> {
         event::listen_with(|event, _status, _window| match event {
             Event::Keyboard(keyboard_event) => Some(Message::KeyEvent(keyboard_event)),
             _ => None,
         })
     }
-
-    fn push(&mut self, event : jafl::KeyEvent) {
-
-        match event {
-            jafl::KeyEvent::Partial(c) => {
-                self.partial_char = Some(c);
-            }
-            jafl::KeyEvent::Complete(c) => {
-                self.partial_char = None;
-
-                // Only push if that won't overflow the line.
-                if (self.errors.len() + self.typed.len()) < self.line.chars().count() {
-                    // If c doesn't match the equivalent position in the target,
-                    // or there are already errors, push c to errors, 
-                    // other wise push it to typed.
-                    let target = self.line.chars().nth(self.typed.len());
-                    if self.errors.len() > 0
-                        || target.is_none() /* typed past end of line? */
-                        || target.unwrap() != c
-                    {
-                        if c == ' ' {
-                            self.errors.push('\u{25a0}');
-                        }
-                        else {
-                            self.errors.push(c);
-                        }
-                    }
-                    else {
-                        self.typed.push(c);
-                    }
-                }
-                if self.typed.len() == self.line.chars().count() {
-                    // A line has been completed
-                    self.typed.clear();
-                    if let Some(c) = self.unused_chars.pop_front() {
-                        self.using_chars.insert(c);
-                    }
-                    let mut words = Words::dictionary(self.using_chars.clone());
-                    self.line = self.next_line.clone();
-                    self.next_line = words.line(Self::CHARS_PER_LINE, &self.least_accurate);
-
-
-                }
-            }
-        }
-    }
-
-    fn pop(&mut self) -> Option<char> {
-        if self.partial_char.is_none() {
-            if self.errors.len() > 0 {
-                return self.errors.pop();
-            }
-            else {
-                return self.typed.pop();
-            }
-        }
-        else {
-            let result = self.partial_char;
-            self.partial_char = None;
-            return result;
-        }
-    }
-
 
 }
