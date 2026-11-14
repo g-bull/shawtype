@@ -31,13 +31,7 @@ fn view(_state: &()) -> Element<'_, Message> {
 }
 */
 
-struct Pos {
-    row: u16,
-    col: u16,
-}
-
 pub struct App {
-    msg: String,
     least_accurate: HashSet<char>,
     using_chars: HashSet<char>,
     unused_chars: VecDeque<char>,
@@ -46,11 +40,6 @@ pub struct App {
     typed: Vec<char>,
     errors: Vec<char>,
     partial_char: Option<char>,
-    line_pos: Pos,
-    next_line_pos: Pos,
-    typed_pos: Pos,
-    partial_pos: Pos,
-    message_pos: Pos,
     transliterator: Shaw,
 }
 
@@ -89,7 +78,6 @@ impl App {
         let least_accurate: HashSet<char> = needs_improvement.iter().cloned().collect();
 
         Self {
-            msg: "𐑣𐑧𐑤𐑴 𐑢𐑻𐑤𐑛!".to_string(),
             least_accurate: least_accurate.clone(),
             using_chars: using_chars,
             unused_chars: letter_order,
@@ -98,11 +86,6 @@ impl App {
             typed: Vec::new(),
             errors: Vec::new(),
             partial_char: None,
-            line_pos: Pos{row: 3, col: 10},
-            next_line_pos: Pos{row: 6, col: 10},
-            typed_pos: Pos{row: 3, col: 10},
-            partial_pos: Pos{row: 4, col: 10},
-            message_pos: Pos{row: 2, col: 30},
             transliterator: Shaw::new()
         }
     }

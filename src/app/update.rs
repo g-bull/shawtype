@@ -17,9 +17,8 @@ impl App {
         match message {
             Message::KeyEvent(keyboard_event) => {
                 match keyboard_event {
-                    keyboard::Event::KeyPressed { key, modifiers, text, .. } => {
+                    keyboard::Event::KeyPressed { key, modifiers: _, text, .. } => {
                         // Handle key press here (e.g., check `key` or `modifiers`)
-
                         match key {
                             iced::keyboard::Key::Named(iced::keyboard::key::Named::Backspace) => {
                                 // Handle Backspace key press
@@ -31,28 +30,13 @@ impl App {
                         let text = text.map(|smol| smol.to_string()).unwrap_or_default();
                         if let Some(latin) = text.chars().next() {
                             if latin.is_ascii_graphic() || latin == ' ' {
-                                let unicode_val = latin as u32;
-                                //println!("Latin {} unicode {}", latin, unicode_val);
+
                                 let shaw_vec = self.transliterator.process(latin);
                                 for shaw in &shaw_vec {
-                                    /*
-                                    match shaw {
-                                        KeyEvent::Complete(c) => {
-                                            println!("Complete {}", c);
-                                        },
-                                        KeyEvent::Partial(c) => {
-                                            println!("Partial {}", c);
-                                        }
-                                    }*/
                                     self.push(shaw.clone());
                                 }
                             }
-                            else {
-                            }
                         }
-                    }
-                    keyboard::Event::KeyReleased { key, modifiers, .. } => {
-                        // Handle key release
                     }
                     _ => {}
                 }
