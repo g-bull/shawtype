@@ -20,6 +20,7 @@ impl App {
         let partial_s: String = self.partial_char.into_iter().collect();
         let line_s: String = self.line.chars().skip(self.typed.len() + self.errors.len())
                                 .into_iter().collect();
+        let cursor_s : String = "^".to_string();
 
         let active_line = row![
             text(typed_s.clone()).size(24)
@@ -32,7 +33,7 @@ impl App {
                 }),
         ];
 
-        let partial_line = row![
+        let cursor_line = row![
             text(typed_s.clone()).size(24)
                 .color(Color::TRANSPARENT)
                 .line_height(0.5),
@@ -42,11 +43,14 @@ impl App {
             text(partial_s.clone()).size(24)
                 .style(text::warning)
                 .line_height(0.5),
+            text(cursor_s.clone()).size(24)
+                .color(Color::from_rgb(0.2, 0.8, 0.2))
+                .line_height(0.5),
         ];
 
         column![
             active_line,
-            partial_line,
+            cursor_line,
             /*text(partial_s.clone()).size(24)
                 .style(text::warning),*/
             text(self.next_line.clone()).size(24)
